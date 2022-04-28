@@ -71,6 +71,11 @@ func (v *run) Run() error {
         stat, err := d.Info()
         if err != nil { return nil }
 
+        /* Exclude */
+        if stat.Mode() & os.ModeSymlink != 0 {
+            return nil
+        }
+
         ok := true
         acl := ""
         result := Result{}

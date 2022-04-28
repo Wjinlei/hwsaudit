@@ -7,7 +7,7 @@ import (
 	"github.com/genshen/cmds"
 )
 
-const VERSION = "0.1.3"
+const VERSION = "0.1.4"
 
 var versionCommand = &cmds.Command{
 	Name:        "version",
