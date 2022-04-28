@@ -99,7 +99,7 @@ func isMatchAcl(filePath string) (string, bool) {
 
     for _, rule := range strings.Split(opt.fileAcl, ",") {
         rule = strings.Trim(rule, "*")
-        rule = strings.ReplaceAll(rule, "0", table["0"])
+        rule = strings.ReplaceAll(rule, "0", "---")
         rule = strings.ReplaceAll(rule, "1", table["1"])
         rule = strings.ReplaceAll(rule, "2", table["2"])
         rule = strings.ReplaceAll(rule, "3", table["3"])
