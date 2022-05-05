@@ -1,15 +1,16 @@
 package run
 
 import (
-    "syscall"
-    "io/fs"
-    "os"
-    "fmt"
-    "encoding/json"
-    "errors"
-    "flag"
-    "path/filepath"
-    "github.com/genshen/cmds"
+	"encoding/json"
+	"errors"
+	"flag"
+	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"syscall"
+
+	"github.com/genshen/cmds"
 )
 
 var runCommand = &cmds.Command{

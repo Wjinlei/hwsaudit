@@ -1,11 +1,12 @@
 package run
 
 import (
-    "os"
-    "fmt"
-    "strings"
-    "io/ioutil"
-    "github.com/Wjinlei/golib/os/cmd"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"strings"
+
+	"github.com/Wjinlei/golib/os/cmd"
 )
 
 var table map[string]string

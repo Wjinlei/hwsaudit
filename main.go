@@ -1,12 +1,13 @@
 package main
 
 import (
-    "fmt"
-    "errors"
-    "flag"
-    "github.com/genshen/cmds"
-    _ "github.com/Wjinlei/hwsaudit/commands/version"
-    _ "github.com/Wjinlei/hwsaudit/commands/run"
+	"errors"
+	"flag"
+	"fmt"
+
+	_ "github.com/Wjinlei/hwsaudit/commands/run"
+	_ "github.com/Wjinlei/hwsaudit/commands/version"
+	"github.com/genshen/cmds"
 )
 
 func main() {
