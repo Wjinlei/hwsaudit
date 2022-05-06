@@ -7,7 +7,7 @@ import (
 	"github.com/genshen/cmds"
 )
 
-const VERSION = "0.1.4"
+const VERSION = "0.1.5"
 
 var versionCommand = &cmds.Command{
 	Name:        "version",
@@ -15,6 +15,8 @@ var versionCommand = &cmds.Command{
 	Description: "print current version.",
 	CustomFlags: false,
 	HasOptions:  false,
+	FlagSet:     &flag.FlagSet{},
+	Runner:      nil,
 }
 
 func init() {

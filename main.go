@@ -11,14 +11,14 @@ import (
 )
 
 func main() {
-    cmds.SetProgramName("hwsaudit")
-    if err := cmds.Parse(); err != nil {
-        if err == flag.ErrHelp {
-            return
-        }
-        // skip error in sub command parsing, because the error has been printed.
-        if !errors.Is(err, &cmds.SubCommandParseError{}) {
-            fmt.Println(err)
-        }
-    }
+	cmds.SetProgramName("hwsaudit")
+	if err := cmds.Parse(); err != nil {
+		if err == flag.ErrHelp {
+			return
+		}
+		// skip error in sub command parsing, because the error has been printed.
+		if !errors.Is(err, &cmds.SubCommandParseError{}) {
+			fmt.Println(err)
+		}
+	}
 }
