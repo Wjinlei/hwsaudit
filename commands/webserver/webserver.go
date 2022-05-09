@@ -5,6 +5,7 @@ import (
 
 	"github.com/genshen/cmds"
 	"github.com/gin-gonic/gin"
+	"github.com/shirou/gopsutil/v3/host"
 )
 
 var webserverCommand = &cmds.Command{
@@ -41,6 +42,23 @@ func (v *version) Run() error {
 	router.GET("/", func(ctx *gin.Context) {
 		ctx.HTML(200, "index.html", nil)
 	})
+
+	v1 := router.Group("/api")
+	{
+		v1.GET("/home", func(ctx *gin.Context) {
+			os := "Unknown"
+			platform, _, version, err := host.PlatformInformation()
+			if err == nil {
+				os = platform + " " + version
+			}
+			ctx.JSON(200, gin.H{
+				"message": "",
+				"result":  gin.H{"os": os},
+				"code":    200,
+			})
+		})
+	}
+
 	router.Run(":8000")
 	return nil
 }
