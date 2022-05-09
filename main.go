@@ -7,6 +7,7 @@ import (
 
 	_ "github.com/Wjinlei/hwsaudit/commands/run"
 	_ "github.com/Wjinlei/hwsaudit/commands/version"
+	_ "github.com/Wjinlei/hwsaudit/commands/webserver"
 	"github.com/genshen/cmds"
 )
 
