@@ -57,6 +57,13 @@ func (v *version) Run() error {
 				"code":    200,
 			})
 		})
+
+		v1.POST("/home", func(ctx *gin.Context) {
+			var result Result
+			if ctx.ShouldBind(&result) == nil {
+				// TODO
+			}
+		})
 	}
 
 	router.Run(":8000")
