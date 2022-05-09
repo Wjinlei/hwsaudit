@@ -14,6 +14,7 @@ import (
 
 func WalkDir(save bool, root string, target string, user string, mode string, s bool, t bool, acl string) error {
 	i := 0
+	golib.Delete("result.txt")
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -58,7 +59,7 @@ func WalkDir(save bool, root string, target string, user string, mode string, s 
 			}
 		}
 
-		/* Match setuid */
+		/* Match sUid || sGid */
 		if s {
 			if stat.Mode()&os.ModeSetuid != 0 || stat.Mode()&os.ModeSetgid != 0 {
 				ok = true
@@ -67,7 +68,7 @@ func WalkDir(save bool, root string, target string, user string, mode string, s 
 			}
 		}
 
-		/* Match setgid */
+		/* Match sticky */
 		if t {
 			if stat.Mode()&os.ModeSticky != 0 {
 				ok = true
@@ -94,9 +95,10 @@ func WalkDir(save bool, root string, target string, user string, mode string, s 
 			result.Facl = facl
 
 			jsonResult, _ := json.Marshal(result)
-			fmt.Println(string(jsonResult))
 			if save {
 				golib.FileWrite("result.txt", string(jsonResult)+"\n", golib.FileAppend)
+			} else {
+				fmt.Println(string(jsonResult))
 			}
 			i = i + 1
 		}
