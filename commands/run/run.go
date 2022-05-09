@@ -1,16 +1,11 @@
 package run
 
 import (
-	"encoding/json"
 	"errors"
 	"flag"
-	"fmt"
-	"io/fs"
 	"os"
-	"path/filepath"
-	"syscall"
 
-	"github.com/Wjinlei/golib"
+	"github.com/Wjinlei/hwsaudit/commands/public"
 	"github.com/genshen/cmds"
 )
 
@@ -68,92 +63,5 @@ func (v *run) PreRun() error {
 }
 
 func (v *run) Run() error {
-	err := filepath.WalkDir(opt.directory, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		stat, err := d.Info()
-		if err != nil {
-			return nil
-		}
-
-		/* Exclude */
-		if stat.Mode()&os.ModeSymlink != 0 {
-			return nil
-		}
-
-		ok := true
-		acl := ""
-		result := Result{}
-		sSys := stat.Sys().(*syscall.Stat_t)
-
-		/* Match scan target */
-		if opt.C == "file" && d.IsDir() {
-			return nil
-		}
-		if opt.C == "dir" && !d.IsDir() {
-			return nil
-		}
-
-		/* Match user */
-		if opt.user != "" && opt.user != "*" {
-			ok = isMatchUser(int(sSys.Uid))
-			if !ok {
-				return nil
-			}
-		}
-
-		/* Match mode */
-		if opt.fileMode != "" && opt.fileMode != "*" {
-			ok = isMatchMode(stat.Mode())
-			if !ok {
-				return nil
-			}
-		}
-
-		/* Match setuid */
-		if opt.setUidGid {
-			if stat.Mode()&os.ModeSetuid != 0 || stat.Mode()&os.ModeSetgid != 0 {
-				ok = true
-			} else {
-				return nil
-			}
-		}
-
-		/* Match setgid */
-		if opt.setSticky {
-			if stat.Mode()&os.ModeSticky != 0 {
-				ok = true
-			} else {
-				return nil
-			}
-		}
-
-		/* Match acl */
-		if opt.fileAcl != "" && opt.fileAcl != "*" {
-			acl, ok = isMatchAcl(path)
-			if !ok {
-				return nil
-			}
-		}
-
-		/* Check ok */
-		if ok {
-			result.Name = d.Name()
-			result.Path = golib.GetAbs(path)
-			result.User = findUser(int(sSys.Uid))
-			result.Mode = stat.Mode().String()
-			result.Facl = acl
-
-			jsonResult, _ := json.Marshal(result)
-			fmt.Println(string(jsonResult))
-		}
-		return nil
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return public.WalkDir(false, opt.directory, opt.C, opt.user, opt.fileMode, opt.setUidGid, opt.setSticky, opt.fileAcl)
 }

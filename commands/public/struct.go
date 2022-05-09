@@ -1,4 +1,4 @@
-package webserver
+package public
 
 type Result struct {
 	Id    int      `json:"id"`
@@ -7,5 +7,5 @@ type Result struct {
 	User  string   `json:"user" form:"user"`
 	Mode  string   `json:"mode" form:"mode"`
 	Facl  string   `json:"facl" form:"facl"`
-	Other []string `form:"other"`
+	Other []string `json:"-" form:"other"`
 }

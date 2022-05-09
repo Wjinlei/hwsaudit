@@ -1,0 +1,109 @@
+package public
+
+import (
+	"encoding/json"
+	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"syscall"
+
+	"github.com/Wjinlei/golib"
+	"github.com/Wjinlei/hwsaudit/global"
+)
+
+func WalkDir(save bool, root string, target string, user string, mode string, s bool, t bool, acl string) error {
+	i := 0
+	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		stat, err := d.Info()
+		if err != nil {
+			return nil
+		}
+
+		/* Exclude */
+		if stat.Mode()&os.ModeSymlink != 0 {
+			return nil
+		}
+
+		ok := true
+		facl := ""
+		result := Result{}
+		sSys := stat.Sys().(*syscall.Stat_t)
+
+		/* Match scan target */
+		if target == "file" && d.IsDir() {
+			return nil
+		}
+		if target == "dir" && !d.IsDir() {
+			return nil
+		}
+
+		/* Match user */
+		if user != "" && user != "*" {
+			ok = IsMatchUser(int(sSys.Uid), user)
+			if !ok {
+				return nil
+			}
+		}
+
+		/* Match mode */
+		if mode != "" && mode != "*" {
+			ok = IsMatchMode(stat.Mode(), mode)
+			if !ok {
+				return nil
+			}
+		}
+
+		/* Match setuid */
+		if s {
+			if stat.Mode()&os.ModeSetuid != 0 || stat.Mode()&os.ModeSetgid != 0 {
+				ok = true
+			} else {
+				return nil
+			}
+		}
+
+		/* Match setgid */
+		if t {
+			if stat.Mode()&os.ModeSticky != 0 {
+				ok = true
+			} else {
+				return nil
+			}
+		}
+
+		/* Match acl */
+		if acl != "" && acl != "*" {
+			facl, ok = IsMatchAcl(path, acl)
+			if !ok {
+				return nil
+			}
+		}
+
+		/* Check ok */
+		if ok {
+			result.Id = i
+			result.Name = d.Name()
+			result.Path = golib.GetAbs(path)
+			result.User = global.FindUser(int(sSys.Uid))
+			result.Mode = stat.Mode().String()
+			result.Facl = facl
+
+			jsonResult, _ := json.Marshal(result)
+			fmt.Println(string(jsonResult))
+			if save {
+				golib.FileWrite("result.txt", string(jsonResult)+"\n", golib.FileAppend)
+			}
+			i = i + 1
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}

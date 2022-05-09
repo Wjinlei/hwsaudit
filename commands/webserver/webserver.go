@@ -3,6 +3,7 @@ package webserver
 import (
 	"flag"
 
+	"github.com/Wjinlei/hwsaudit/commands/public"
 	"github.com/genshen/cmds"
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/v3/host"
@@ -59,7 +60,7 @@ func (v *version) Run() error {
 		})
 
 		v1.POST("/home", func(ctx *gin.Context) {
-			var result Result
+			var result public.Result
 			if ctx.ShouldBind(&result) == nil {
 				// TODO
 			}

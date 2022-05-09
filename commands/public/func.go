@@ -1,4 +1,4 @@
-package run
+package public
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Wjinlei/golib/os/cmd"
+	"github.com/Wjinlei/hwsaudit/global"
 )
 
 var table map[string]string
@@ -25,21 +26,21 @@ func init() {
 	}
 }
 
-func isMatchUser(uid int) bool {
+func IsMatchUser(uid int, user string) bool {
 	/* Match user */
-	if strings.Contains(opt.user, "-") && opt.user != "-" {
-		if findUser(uid) != strings.Trim(opt.user, "-") {
+	if strings.Contains(user, "-") && user != "-" {
+		if global.FindUser(uid) != strings.Trim(user, "-") {
 			return true
 		}
 	} else {
-		if findUser(uid) == opt.user {
+		if global.FindUser(uid) == user {
 			return true
 		}
 	}
 	return false
 }
 
-func isMatchMode(fileMode os.FileMode) bool {
+func IsMatchMode(fileMode os.FileMode, mode string) bool {
 	/* Get Mode().Perm() []string */
 	perm := strings.Split(fmt.Sprintf("%#o", fileMode.Perm()), "")
 
@@ -53,15 +54,15 @@ func isMatchMode(fileMode os.FileMode) bool {
 		perm = append(perm, "0")
 	}
 
-	for i, mode := range strings.Split(opt.fileMode, "") {
+	for i, m := range strings.Split(mode, "") {
 		/* Mode length only 3 */
 		if i > 2 {
 			break
 		}
 
-		switch mode {
+		switch m {
 		case "0", "1", "2", "3", "4", "5", "6", "7":
-			for _, bit := range strings.Split(table[mode], "") {
+			for _, bit := range strings.Split(table[m], "") {
 				if bit == "-" {
 					continue
 				}
@@ -80,7 +81,7 @@ func isMatchMode(fileMode os.FileMode) bool {
 	return true
 }
 
-func isMatchAcl(filePath string) (string, bool) {
+func IsMatchAcl(filePath string, facl string) (string, bool) {
 	out, err := cmd.New().Shell(fmt.Sprintf("getfacl -c -s -p %s |grep -E :.+:", filePath))
 	if err != nil {
 		return "", false
@@ -97,7 +98,7 @@ func isMatchAcl(filePath string) (string, bool) {
 		return "", false
 	}
 
-	for _, rule := range strings.Split(opt.fileAcl, ",") {
+	for _, rule := range strings.Split(facl, ",") {
 		rule = strings.Trim(rule, "*")
 		rule = strings.ReplaceAll(rule, "0", "---")
 		rule = strings.ReplaceAll(rule, "1", table["1"])

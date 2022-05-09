@@ -1,11 +1,11 @@
-package run
+package global
 
 import (
 	"os/user"
 	"strconv"
 )
 
-func findUser(uid int) string {
+func FindUser(uid int) string {
 	user, err := user.LookupId(strconv.Itoa(uid))
 	if err != nil {
 		return "-"
