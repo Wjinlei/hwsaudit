@@ -67,10 +67,12 @@ func (v *version) Run() error {
 			if ctx.ShouldBind(&result) == nil {
 				lstat, err := os.Lstat(result.Path)
 				if err != nil {
-					ctx.JSON(200, gin.H{"message": err.Error(), "result": gin.H{}, "code": 500})
+					ctx.AbortWithStatusJSON(200, gin.H{"message": err.Error(), "result": []string{}, "code": 500})
+					return
 				}
 				if lstat.IsDir() == false {
-					ctx.JSON(200, gin.H{"message": "Path not directory", "result": gin.H{}, "code": 500})
+					ctx.AbortWithStatusJSON(200, gin.H{"message": "Path not directory", "result": []string{}, "code": 500})
+					return
 				}
 
 				checkT := false  // check sticky
@@ -108,7 +110,8 @@ func (v *version) Run() error {
 				// Read result from result.txt
 				jsonStrResults, err := golib.ReadLinesOffsetN("result.txt", 0, 100, "\n")
 				if err != nil {
-					ctx.JSON(200, gin.H{"message": err.Error(), "result": gin.H{}, "code": 500})
+					ctx.AbortWithStatusJSON(200, gin.H{"message": err.Error(), "result": []string{}, "code": 500})
+					return
 				}
 
 				// Convert string result to json
@@ -125,7 +128,6 @@ func (v *version) Run() error {
 					"result":  jsonResults,
 					"code":    200,
 				})
-
 			}
 		})
 	}
