@@ -5,5 +5,5 @@ type Result struct {
 	Path string `json:"path"`
 	User string `json:"user"`
 	Mode string `json:"mode"`
-	Acl  string `json:"acl,omitempty"`
+	Facl string `json:"facl,omitempty"`
 }

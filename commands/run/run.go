@@ -144,7 +144,7 @@ func (v *run) Run() error {
 			result.Path = golib.GetAbs(path)
 			result.User = findUser(int(sSys.Uid))
 			result.Mode = stat.Mode().String()
-			result.Acl = acl
+			result.Facl = acl
 
 			jsonResult, _ := json.Marshal(result)
 			fmt.Println(string(jsonResult))
