@@ -58,7 +58,7 @@ func (v *version) Run() error {
 			ctx.JSON(200, gin.H{
 				"message": "",
 				"result":  gin.H{"os": os},
-				"code":    200,
+				"code":    0,
 			})
 		})
 
@@ -67,11 +67,11 @@ func (v *version) Run() error {
 			if ctx.ShouldBind(&result) == nil {
 				lstat, err := os.Lstat(result.Path)
 				if err != nil {
-					ctx.AbortWithStatusJSON(200, gin.H{"message": err.Error(), "result": []string{}, "code": 500})
+					ctx.AbortWithStatusJSON(200, gin.H{"message": err.Error(), "result": []string{}, "code": 1})
 					return
 				}
 				if lstat.IsDir() == false {
-					ctx.AbortWithStatusJSON(200, gin.H{"message": "Path not directory", "result": []string{}, "code": 500})
+					ctx.AbortWithStatusJSON(200, gin.H{"message": "Path not directory", "result": []string{}, "code": 1})
 					return
 				}
 
@@ -108,9 +108,8 @@ func (v *version) Run() error {
 				public.WalkDir(true, result.Path, target, result.User, result.Mode, checkS, checkT, result.Facl)
 
 				// Read result from result.txt
-				jsonStrResults, err := golib.ReadLinesOffsetN("result.txt", 0, 100, "\n")
+				jsonStrResults, err := golib.ReadLines("result.txt", "\n")
 				if err != nil {
-					ctx.AbortWithStatusJSON(200, gin.H{"message": err.Error(), "result": []string{}, "code": 500})
 					return
 				}
 
@@ -126,7 +125,7 @@ func (v *version) Run() error {
 				ctx.JSON(200, gin.H{
 					"message": "",
 					"result":  jsonResults,
-					"code":    200,
+					"code":    0,
 				})
 			}
 		})
