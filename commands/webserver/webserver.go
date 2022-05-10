@@ -110,6 +110,7 @@ func (v *version) Run() error {
 				// Read result from result.txt
 				jsonStrResults, err := golib.ReadLines("result.txt", "\n")
 				if err != nil {
+					ctx.AbortWithStatusJSON(200, gin.H{"message": "", "result": []string{}, "code": 0})
 					return
 				}
 

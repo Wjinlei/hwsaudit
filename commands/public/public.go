@@ -78,7 +78,7 @@ func WalkDir(save bool, root string, target string, user string, mode string, s 
 		}
 
 		/* Match acl */
-		if acl != "" && acl != "*" {
+		if acl != "" {
 			facl, ok = IsMatchAcl(path, acl)
 			if !ok {
 				return nil
