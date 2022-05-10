@@ -6,6 +6,6 @@ type Result struct {
 	Path  string   `json:"path" form:"path"`
 	User  string   `json:"user" form:"user"`
 	Mode  string   `json:"mode" form:"mode"`
-	Facl  string   `json:"facl" form:"facl"`
-	Other []string `json:"other" form:"other"`
+	Facl  string   `json:"facl,omitempty" form:"facl"`
+	Other []string `json:"other,omitempty" form:"other"`
 }

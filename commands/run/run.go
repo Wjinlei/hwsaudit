@@ -41,7 +41,7 @@ func init() {
 	runCommand.FlagSet.StringVar(&opt.directory, "d", "./", `check directory, eg: "/wwwroot"`)
 	runCommand.FlagSet.StringVar(&opt.user, "u", "*", `check file user, eg: "-root"`)
 	runCommand.FlagSet.StringVar(&opt.fileMode, "m", "*", `check file mode, eg: ["**2"|"644"|"777"]`)
-	runCommand.FlagSet.StringVar(&opt.fileAcl, "a", "*", `check file acl,  eg: "user1:2,user2:*,*:2,*:*"`)
+	runCommand.FlagSet.StringVar(&opt.fileAcl, "a", "", `check file acl,  eg: "user1:2,user2:*,*:2,*:*"`)
 	runCommand.FlagSet.BoolVar(&opt.setUidGid, "s", false, `type:[bool] check setuid setgid.`)
 	runCommand.FlagSet.BoolVar(&opt.setSticky, "t", false, `type:[bool] check sticky`)
 
