@@ -105,17 +105,17 @@ func IsMatchAcl(path string, facl string) (string, bool) {
 			mode = rule[1]
 		}
 
-		for _, line := range strings.Split(o, "\r\n") {
+		for _, line := range strings.Split(o, "\n") {
 			if user == "" {
 				lineMode := strings.Split(line, ":")[2]
 				if ok := contains(lineMode, strings.TrimSpace(mode)); ok {
-					return strings.ReplaceAll(o, "\r\n", ","), true
+					return strings.ReplaceAll(o, "\n", ","), true
 				}
 			} else {
 				if strings.Contains(line, ":"+user+":") {
 					lineMode := strings.Split(line, ":")[2]
 					if ok := contains(lineMode, strings.TrimSpace(mode)); ok {
-						return strings.ReplaceAll(o, "\r\n", ","), true
+						return strings.ReplaceAll(o, "\n", ","), true
 					}
 				}
 			}

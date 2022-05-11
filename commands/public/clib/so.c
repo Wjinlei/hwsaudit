@@ -31,7 +31,8 @@ char *getfacl(char *file) {
   while (sub_string != NULL) {
     int regex_result = regexec(&regex, sub_string, 0, NULL, 0);
     if (REG_NOERROR == regex_result) {
-      strcat(result, strcat(sub_string, "\n"));
+      strncat(result, delim, strlen(delim));
+      strncat(result, sub_string, strlen(sub_string));
     }
     sub_string = strtok(NULL, delim);
   }
