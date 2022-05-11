@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"flag"
 	"os"
-	"strconv"
 
 	"github.com/Wjinlei/golib"
 	"github.com/Wjinlei/hwsaudit/commands/public"
@@ -64,33 +63,28 @@ func (v *version) Run() error {
 		})
 
 		v1.GET("/result", func(ctx *gin.Context) {
-			page, err := strconv.Atoi(ctx.Query("pageNo"))
-			if err != nil {
-				ctx.AbortWithStatusJSON(200, gin.H{"message": "page error", "result": []string{}, "code": 1})
-				return
-			}
-			pageSize, err := strconv.Atoi(ctx.Query("pageSize"))
-			if err != nil {
-				ctx.AbortWithStatusJSON(200, gin.H{"message": "page_size error", "result": []string{}, "code": 1})
+			page := GetReusltParams{}
+			if err := ctx.ShouldBindQuery(&page); err != nil {
+				ctx.AbortWithStatusJSON(200, gin.H{"message": "param error", "result": []string{}, "code": 1})
 				return
 			}
 
+            // Open result.txt
 			file, err := os.Open("result.txt")
 			if err != nil {
 				ctx.AbortWithStatusJSON(200, gin.H{"message": "", "result": []string{}, "code": 0})
 				return
 			}
+			defer file.Close()
 
-			total, err := public.LineCounter(file)
-			if err != nil {
-				ctx.AbortWithStatusJSON(200, gin.H{"message": "", "result": []string{}, "code": 0})
-				return
-			}
+			// Get result.txt count
+			total, _ := public.LineCounter(file)
 
-			begin := pageSize*page - pageSize
+			// Begin offset
+			begin := page.PageSize*page.PageNo - page.PageSize
 
 			// Read result from result.txt
-			jsonStrResults, err := golib.ReadLinesOffsetN("result.txt", uint(begin), pageSize-1, "\n")
+			jsonStrResults, err := golib.ReadLinesOffsetN("result.txt", uint(begin), page.PageSize-1, "\n")
 			if err != nil {
 				ctx.AbortWithStatusJSON(200, gin.H{"message": "", "result": []string{}, "code": 0})
 				return
@@ -107,7 +101,7 @@ func (v *version) Run() error {
 
 			ctx.JSON(200, gin.H{
 				"message": "",
-				"result":  gin.H{"data": jsonResults, "pageNo": 1, "totalCount": total},
+				"result":  gin.H{"data": jsonResults, "pageNo": page.PageNo, "totalCount": total},
 				"code":    0,
 			})
 

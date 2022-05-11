@@ -141,20 +141,34 @@ func contains(a string, b string) bool {
 }
 
 func LineCounter(r io.Reader) (int, error) {
-	buf := make([]byte, 32*1024)
-	count := 0
-	lineSep := []byte{'\n'}
+	var readSize int
+	var err error
+	var count int
+
+	buf := make([]byte, 1024)
 
 	for {
-		c, err := r.Read(buf)
-		count += bytes.Count(buf[:c], lineSep)
+		readSize, err = r.Read(buf)
+		if err != nil {
+			break
+		}
 
-		switch {
-		case err == io.EOF:
-			return count, nil
-
-		case err != nil:
-			return count, err
+		var buffPosition int
+		for {
+			i := bytes.IndexByte(buf[buffPosition:], '\n')
+			if i == -1 || readSize == buffPosition {
+				break
+			}
+			buffPosition += i + 1
+			count++
 		}
 	}
+	if readSize > 0 && count == 0 || count > 0 {
+		count++
+	}
+	if err == io.EOF {
+		return count, nil
+	}
+
+	return count, err
 }
