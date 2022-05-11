@@ -1,14 +1,21 @@
 package public
 
+/*
+#cgo CFLAGS: -I./clib
+#cgo LDFLAGS: -L${SRCDIR}/clib -lso -lacl
+#include <stdlib.h>
+#include "so.h"
+*/
+import "C"
+
 import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
+	"unsafe"
 
-	"github.com/Wjinlei/golib/os/cmd"
 	"github.com/Wjinlei/hwsaudit/global"
 )
 
@@ -71,19 +78,16 @@ func IsMatchMode(fileMode os.FileMode, mode string) bool {
 	return true
 }
 
-func IsMatchAcl(filePath string, facl string) (string, bool) {
-	cmdReader, err := cmd.New().Shell("getfacl -c -s -p " + filePath + " |grep -E :.+:")
-	if err != nil {
-		return "", false
-	}
+func IsMatchAcl(path string, facl string) (string, bool) {
+	// Get file acl
+	cPath := C.CString(path)
+	cFacl := C.getfacl(cPath) // cgo
+	o := C.GoString(cFacl)
+	C.free(unsafe.Pointer(cPath))
+	C.free(unsafe.Pointer(cFacl))
 
-	data, err := ioutil.ReadAll(cmdReader)
-	if err != nil {
-		return "", false
-	}
-
-	out := strings.TrimSpace(string(data))
-	if out == "" {
+	o = strings.TrimSpace(o)
+	if o == "" {
 		return "", false
 	}
 
@@ -91,7 +95,7 @@ func IsMatchAcl(filePath string, facl string) (string, bool) {
 		rule := strings.Split(item, ":")
 		user := strings.TrimSpace(strings.ReplaceAll(rule[0], "*", ""))
 		if user != "" {
-			if !strings.Contains(out, ":"+user+":") {
+			if !strings.Contains(o, ":"+user+":") {
 				continue
 			}
 		}
@@ -101,17 +105,17 @@ func IsMatchAcl(filePath string, facl string) (string, bool) {
 			mode = rule[1]
 		}
 
-		for _, line := range strings.Split(out, "\n") {
+		for _, line := range strings.Split(o, "\r\n") {
 			if user == "" {
 				lineMode := strings.Split(line, ":")[2]
 				if ok := contains(lineMode, strings.TrimSpace(mode)); ok {
-					return strings.ReplaceAll(out, "\n", ","), true
+					return strings.ReplaceAll(o, "\r\n", ","), true
 				}
 			} else {
 				if strings.Contains(line, ":"+user+":") {
 					lineMode := strings.Split(line, ":")[2]
 					if ok := contains(lineMode, strings.TrimSpace(mode)); ok {
-						return strings.ReplaceAll(out, "\n", ","), true
+						return strings.ReplaceAll(o, "\r\n", ","), true
 					}
 				}
 			}
