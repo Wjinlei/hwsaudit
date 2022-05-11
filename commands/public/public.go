@@ -12,7 +12,7 @@ import (
 	"github.com/Wjinlei/hwsaudit/global"
 )
 
-func WalkDir(save bool, root string, target string, user string, mode string, s bool, t bool, acl string) error {
+func WalkDir(save bool, root string, target string, user string, mode string, s bool, t bool, acl string) (int, error) {
 	i := 0
 	golib.Delete("result.txt")
 	filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
@@ -104,5 +104,5 @@ func WalkDir(save bool, root string, target string, user string, mode string, s 
 		}
 		return nil
 	})
-	return nil
+	return i, nil
 }

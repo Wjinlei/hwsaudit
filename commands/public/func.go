@@ -27,6 +27,7 @@ func init() {
 }
 
 func IsMatchUser(uid int, user string) bool {
+	user = strings.TrimSpace(user)
 	/* Match user */
 	if strings.Contains(user, "-") && user != "-" {
 		if global.FindUser(uid) != strings.Trim(user, "-") {
@@ -54,26 +55,13 @@ func IsMatchMode(fileMode os.FileMode, mode string) bool {
 		perm = append(perm, "0")
 	}
 
-	for i, m := range strings.Split(mode, "") {
+	for i, m := range strings.Split(strings.TrimSpace(mode), "") {
 		/* Mode length only 3 */
 		if i > 2 {
 			break
 		}
 
-		switch m {
-		case "0", "1", "2", "3", "4", "5", "6", "7":
-			for _, bit := range strings.Split(table[m], "") {
-				if bit == "-" {
-					continue
-				}
-				if !strings.Contains(table[perm[i]], bit) {
-					return false
-				}
-			}
-			break
-		case "*":
-			continue
-		default:
+		if ok := contains(table[perm[i]], m); !ok {
 			return false
 		}
 	}
@@ -82,41 +70,70 @@ func IsMatchMode(fileMode os.FileMode, mode string) bool {
 }
 
 func IsMatchAcl(filePath string, facl string) (string, bool) {
-	out, err := cmd.New().Shell(fmt.Sprintf("getfacl -c -s -p %s |grep -E :.+:", filePath))
-	if err != nil {
-		return "", false
-	}
-	data, err := ioutil.ReadAll(out)
+	cmdReader, err := cmd.New().Shell("getfacl -c -s -p " + filePath + " |grep -E :.+:")
 	if err != nil {
 		return "", false
 	}
 
-	str := string(data)
-	str = strings.TrimSpace(str)
-
-	if str == "" {
+	data, err := ioutil.ReadAll(cmdReader)
+	if err != nil {
 		return "", false
 	}
 
-	for _, rule := range strings.Split(facl, ",") {
-		rule = strings.Trim(rule, "*")
-		rule = strings.ReplaceAll(rule, "0", "---")
-		rule = strings.ReplaceAll(rule, "1", table["1"])
-		rule = strings.ReplaceAll(rule, "2", table["2"])
-		rule = strings.ReplaceAll(rule, "3", table["3"])
-		rule = strings.ReplaceAll(rule, "4", table["4"])
-		rule = strings.ReplaceAll(rule, "5", table["5"])
-		rule = strings.ReplaceAll(rule, "6", table["6"])
-		rule = strings.ReplaceAll(rule, "7", table["7"])
-
-		if !strings.HasPrefix(rule, ":") {
-			rule = ":" + rule
-		}
-
-		if !strings.Contains(str, rule) {
-			return "", false
-		}
+	out := strings.TrimSpace(string(data))
+	if out == "" {
+		return "", false
 	}
 
-	return strings.ReplaceAll(str, "\n", ","), true
+	for _, item := range strings.Split(facl, ",") {
+		rule := strings.Split(item, ":")
+		user := strings.TrimSpace(strings.ReplaceAll(rule[0], "*", ""))
+		if user != "" {
+			if !strings.Contains(out, ":"+user+":") {
+				continue
+			}
+		}
+
+		mode := "*"
+		if len(rule) > 1 {
+			mode = rule[1]
+		}
+
+		for _, line := range strings.Split(out, "\n") {
+			if user == "" {
+				lineMode := strings.Split(line, ":")[2]
+				if ok := contains(lineMode, strings.TrimSpace(mode)); ok {
+					return strings.ReplaceAll(out, "\n", ","), true
+				}
+			} else {
+				if strings.Contains(line, ":"+user+":") {
+					lineMode := strings.Split(line, ":")[2]
+					if ok := contains(lineMode, strings.TrimSpace(mode)); ok {
+						return strings.ReplaceAll(out, "\n", ","), true
+					}
+				}
+			}
+		}
+	}
+	return "", false
+}
+
+func contains(a string, b string) bool {
+	switch b {
+	case "0", "1", "2", "3", "4", "5", "6", "7":
+		for _, bit := range strings.Split(table[b], "") {
+			if bit == "-" {
+				continue
+			}
+			if !strings.Contains(a, bit) {
+				return false
+			}
+		}
+		break
+	case "*", "":
+		break
+	default:
+		return false
+	}
+	return true
 }

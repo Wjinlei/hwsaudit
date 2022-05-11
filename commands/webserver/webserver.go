@@ -105,10 +105,10 @@ func (v *version) Run() error {
 				}
 
 				// Handler
-				public.WalkDir(true, result.Path, target, result.User, result.Mode, checkS, checkT, result.Facl)
+				total, _ := public.WalkDir(true, result.Path, target, result.User, result.Mode, checkS, checkT, result.Facl)
 
 				// Read result from result.txt
-				jsonStrResults, err := golib.ReadLines("result.txt", "\n")
+				jsonStrResults, err := golib.ReadLinesOffsetN("result.txt", 0, 500, "\n")
 				if err != nil {
 					ctx.AbortWithStatusJSON(200, gin.H{"message": "", "result": []string{}, "code": 0})
 					return
@@ -125,7 +125,7 @@ func (v *version) Run() error {
 
 				ctx.JSON(200, gin.H{
 					"message": "",
-					"result":  jsonResults,
+					"result":  gin.H{"data": jsonResults, "page": 1, "total_count": total},
 					"code":    0,
 				})
 			}
