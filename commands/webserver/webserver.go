@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"os"
+	"strconv"
 
 	"github.com/Wjinlei/golib"
 	"github.com/Wjinlei/hwsaudit/commands/public"
@@ -62,6 +63,56 @@ func (v *version) Run() error {
 			})
 		})
 
+		v1.GET("/result", func(ctx *gin.Context) {
+			page, err := strconv.Atoi(ctx.Query("pageNo"))
+			if err != nil {
+				ctx.AbortWithStatusJSON(200, gin.H{"message": "page error", "result": []string{}, "code": 1})
+				return
+			}
+			pageSize, err := strconv.Atoi(ctx.Query("pageSize"))
+			if err != nil {
+				ctx.AbortWithStatusJSON(200, gin.H{"message": "page_size error", "result": []string{}, "code": 1})
+				return
+			}
+
+			file, err := os.Open("result.txt")
+			if err != nil {
+				ctx.AbortWithStatusJSON(200, gin.H{"message": "", "result": []string{}, "code": 0})
+				return
+			}
+
+			total, err := public.LineCounter(file)
+			if err != nil {
+				ctx.AbortWithStatusJSON(200, gin.H{"message": "", "result": []string{}, "code": 0})
+				return
+			}
+
+			begin := pageSize*page - pageSize
+
+			// Read result from result.txt
+			jsonStrResults, err := golib.ReadLinesOffsetN("result.txt", uint(begin), pageSize-1, "\n")
+			if err != nil {
+				ctx.AbortWithStatusJSON(200, gin.H{"message": "", "result": []string{}, "code": 0})
+				return
+			}
+
+			// Convert string result to json
+			var jsonResults []public.Result
+			for _, jsonStrResult := range jsonStrResults {
+				var jsonResult public.Result
+				if err := json.Unmarshal([]byte(jsonStrResult), &jsonResult); err == nil {
+					jsonResults = append(jsonResults, jsonResult)
+				}
+			}
+
+			ctx.JSON(200, gin.H{
+				"message": "",
+				"result":  gin.H{"data": jsonResults, "pageNo": 1, "totalCount": total},
+				"code":    0,
+			})
+
+		})
+
 		v1.POST("/home", func(ctx *gin.Context) {
 			var result public.Result
 			if ctx.ShouldBind(&result) == nil {
@@ -105,29 +156,9 @@ func (v *version) Run() error {
 				}
 
 				// Handler
-				total, _ := public.WalkDir(true, result.Path, target, result.User, result.Mode, checkS, checkT, result.Facl)
+				public.WalkDir(true, result.Path, target, result.User, result.Mode, checkS, checkT, result.Facl)
 
-				// Read result from result.txt
-				jsonStrResults, err := golib.ReadLinesOffsetN("result.txt", 0, 500, "\n")
-				if err != nil {
-					ctx.AbortWithStatusJSON(200, gin.H{"message": "", "result": []string{}, "code": 0})
-					return
-				}
-
-				// Convert string result to json
-				var jsonResults []public.Result
-				for _, jsonStrResult := range jsonStrResults {
-					var jsonResult public.Result
-					if err := json.Unmarshal([]byte(jsonStrResult), &jsonResult); err == nil {
-						jsonResults = append(jsonResults, jsonResult)
-					}
-				}
-
-				ctx.JSON(200, gin.H{
-					"message": "",
-					"result":  gin.H{"data": jsonResults, "page": 1, "total_count": total},
-					"code":    0,
-				})
+				ctx.JSON(200, gin.H{"message": "", "result": "ok", "code": 0})
 			}
 		})
 	}
