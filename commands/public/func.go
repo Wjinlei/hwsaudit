@@ -2,9 +2,9 @@ package public
 
 /*
 #cgo CFLAGS: -I./clib
-#cgo LDFLAGS: -L${SRCDIR}/clib -lso -lacl
+#cgo LDFLAGS: -L${SRCDIR}/clib -lmyacl -lacl
 #include <stdlib.h>
-#include "so.h"
+#include "myacl.h"
 */
 import "C"
 
@@ -142,37 +142,4 @@ func contains(a string, b string) bool {
 		return false
 	}
 	return true
-}
-
-func LineCounter(r io.Reader) (int, error) {
-	var readSize int
-	var err error
-	var count int
-
-	buf := make([]byte, 1024)
-
-	for {
-		readSize, err = r.Read(buf)
-		if err != nil {
-			break
-		}
-
-		var buffPosition int
-		for {
-			i := bytes.IndexByte(buf[buffPosition:], '\n')
-			if i == -1 || readSize == buffPosition {
-				break
-			}
-			buffPosition += i + 1
-			count++
-		}
-	}
-	if readSize > 0 && count == 0 || count > 0 {
-		count++
-	}
-	if err == io.EOF {
-		return count, nil
-	}
-
-	return count, err
 }

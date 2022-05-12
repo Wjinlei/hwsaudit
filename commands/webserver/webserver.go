@@ -69,16 +69,16 @@ func (v *version) Run() error {
 				return
 			}
 
-            // Open result.txt
+			// Open result.txt
 			file, err := os.Open("result.txt")
 			if err != nil {
-				ctx.AbortWithStatusJSON(200, gin.H{"message": "", "result": []string{}, "code": 0})
+				ctx.AbortWithStatusJSON(200, gin.H{"message": "", "result": []string{}, "code": 1})
 				return
 			}
 			defer file.Close()
 
 			// Get result.txt count
-			total, _ := public.LineCounter(file)
+			total, _ := golib.LineCounter(file)
 
 			// Begin offset
 			begin := page.PageSize*page.PageNo - page.PageSize
@@ -86,7 +86,7 @@ func (v *version) Run() error {
 			// Read result from result.txt
 			jsonStrResults, err := golib.ReadLinesOffsetN("result.txt", uint(begin), page.PageSize-1, "\n")
 			if err != nil {
-				ctx.AbortWithStatusJSON(200, gin.H{"message": "", "result": []string{}, "code": 0})
+				ctx.AbortWithStatusJSON(200, gin.H{"message": "Read result failed, please restart audit.", "result": []string{}, "code": 0})
 				return
 			}
 
@@ -105,6 +105,10 @@ func (v *version) Run() error {
 				"code":    0,
 			})
 
+		})
+
+		v1.POST("/result", func(ctx *gin.Context) {
+			ctx.FileAttachment("result.txt", "result.txt")
 		})
 
 		v1.POST("/home", func(ctx *gin.Context) {
