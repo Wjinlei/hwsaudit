@@ -5,39 +5,48 @@
 #include <string.h>
 #include <sys/acl.h>
 
-char *getfacl(char *file) {
-  acl_t facl;
-  char *facl_text;
-  regex_t regex;
-  char *delim = "\n";
-  char *sub_string;
-  char *result = malloc(4096 * sizeof(char));
-  sprintf(result, "%s", "");
+char *
+getfacl (char *file)
+{
+        acl_t facl;
+        char *facl_text;
+        regex_t regex;
+        char *delim = "\n";
+        char *sub_string;
+        char *result = malloc (4096 * sizeof (char));
+        sprintf (result, "%s", "");
 
-  // Get acl text
-  facl = acl_get_file(file, ACL_TYPE_ACCESS);
-  if (facl == NULL) {
-    return result;
-  }
-  facl_text = acl_to_text(facl, NULL);
+        // Get acl text
+        facl = acl_get_file (file, ACL_TYPE_ACCESS);
+        if (facl == NULL)
+                {
+                        return result;
+                }
+        facl_text = acl_to_text (facl, NULL);
 
-  // Init regex
-  if (regcomp(&regex, ":.+:", REG_EXTENDED) != 0) {
-    return result;
-  }
+        // Init regex
+        if (regcomp (&regex, ":.+:", REG_EXTENDED) != 0)
+                {
+                        return result;
+                }
 
-  // Filter empty acl rule
-  sub_string = strtok(facl_text, delim);
-  while (sub_string != NULL) {
-    int regex_result = regexec(&regex, sub_string, 0, NULL, 0);
-    if (REG_NOERROR == regex_result) {
-      strncat(result, delim, strlen(delim));
-      strncat(result, sub_string, strlen(sub_string));
-    }
-    sub_string = strtok(NULL, delim);
-  }
+        // Filter empty acl rule
+        sub_string = strtok (facl_text, delim);
+        while (sub_string != NULL)
+                {
+                        int regex_result
+                            = regexec (&regex, sub_string, 0, NULL, 0);
+                        if (REG_NOERROR == regex_result)
+                                {
+                                        strncat (result, delim,
+                                                 strlen (delim));
+                                        strncat (result, sub_string,
+                                                 strlen (sub_string));
+                                }
+                        sub_string = strtok (NULL, delim);
+                }
 
-  acl_free(facl);
-  acl_free(facl_text);
-  return result;
+        acl_free (facl);
+        acl_free (facl_text);
+        return result;
 }
