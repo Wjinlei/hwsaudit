@@ -9,9 +9,7 @@ package public
 import "C"
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"os"
 	"strings"
 	"unsafe"
