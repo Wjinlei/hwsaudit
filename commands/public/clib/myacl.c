@@ -1,11 +1,13 @@
 #include "myacl.h"
+
 #include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/acl.h>
 
-char* getfacl(char* file)
+char*
+getfacl(char* file)
 {
         acl_t facl;
         char* facl_text;
@@ -30,13 +32,10 @@ char* getfacl(char* file)
         // Filter empty acl rule
         sub_string = strtok(facl_text, delim);
         while (sub_string != NULL) {
-                int regex_result
-                    = regexec(&regex, sub_string, 0, NULL, 0);
+                int regex_result = regexec(&regex, sub_string, 0, NULL, 0);
                 if (REG_NOERROR == regex_result) {
-                        strncat(result, delim,
-                            strlen(delim));
-                        strncat(result, sub_string,
-                            strlen(sub_string));
+                        strncat(result, delim, strlen(delim));
+                        strncat(result, sub_string, strlen(sub_string));
                 }
                 sub_string = strtok(NULL, delim);
         }
