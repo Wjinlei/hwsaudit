@@ -6,8 +6,7 @@
 #include <string.h>
 #include <sys/acl.h>
 
-char*
-getfacl(char* file)
+char* getfacl(char* file)
 {
         struct re_pattern_buffer regex;
         struct __acl_ext* facl;
