@@ -9,9 +9,9 @@
 char*
 getfacl(char* file)
 {
-        acl_t facl;
+        struct re_pattern_buffer regex;
+        struct __acl_ext* facl;
         char* facl_text;
-        regex_t regex;
         char* delim = "\n";
         char* sub_string;
         char* result = malloc(4096 * sizeof(char));
