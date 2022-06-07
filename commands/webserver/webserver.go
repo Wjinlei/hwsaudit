@@ -84,7 +84,7 @@ func (v *version) Run() error {
 			begin := page.PageSize*page.PageNo - page.PageSize
 
 			// Read result from result.txt
-			jsonStrResults, err := golib.ReadLinesOffsetN("result.txt", uint(begin), page.PageSize-1, "\n")
+			jsonStrResults, err := golib.ReadLinesOffsetN("result.txt", uint(begin), page.PageSize, "\n")
 			if err != nil {
 				ctx.AbortWithStatusJSON(200, gin.H{"message": "Read result failed, please restart audit.", "result": []string{}, "code": 0})
 				return

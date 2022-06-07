@@ -13,7 +13,7 @@ import (
 )
 
 func WalkDir(save bool, root string, target string, user string, mode string, s bool, t bool, acl string) error {
-	i := 0
+	i := 1
 	golib.Delete("result.txt")
 	filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
