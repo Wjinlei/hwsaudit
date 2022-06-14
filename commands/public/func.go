@@ -9,12 +9,15 @@ package public
 import "C"
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
+	"time"
 	"unsafe"
 
 	"github.com/Wjinlei/hwsaudit/global"
+	"github.com/coreos/go-systemd/v22/dbus"
 )
 
 var table map[string]string
@@ -120,6 +123,58 @@ func IsMatchAcl(path string, facl string) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+func ListUnits(states []string) ([]Unit, error) {
+	var id int
+	var returnUnitList []Unit
+
+	dbusConnect, err := dbus.New()
+	if err != nil {
+		return nil, err
+	}
+	defer dbusConnect.Close()
+
+	withTimeoutContext, cancel := context.WithTimeout(context.Background(), time.Duration(30*time.Second))
+	defer cancel()
+
+	unitList, err := dbusConnect.ListUnitsContext(withTimeoutContext)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, unit := range unitList {
+		if strings.HasSuffix(unit.Name, ".service") {
+			propUnitFileState, _ := dbusConnect.GetUnitPropertyContext(withTimeoutContext, unit.Name, "UnitFileState")
+			propExecStart, _ := dbusConnect.GetServicePropertyContext(withTimeoutContext, unit.Name, "ExecStart")
+
+			var propExecStartValue []string
+			if propExecStart != nil {
+				for _, findCase := range regularizer.FindAllString(propExecStart.Value.String(), -1) {
+					findCase = strings.ReplaceAll(findCase, "\"", "")
+					findCase = strings.ReplaceAll(findCase, ",", "")
+					findCase = strings.ReplaceAll(findCase, "]", "")
+					findCase = strings.ReplaceAll(findCase, "[", "")
+					propExecStartValue = append(propExecStartValue, findCase)
+				}
+			}
+			propUnitFileStateValue := strings.Trim(propUnitFileState.Value.String(), "\"")
+
+			for _, state := range states {
+				if propUnitFileStateValue == state {
+					id = id + 1
+					returnUnitList = append(returnUnitList, Unit{
+						Id:          id,
+						Name:        unit.Name,
+						State:       propUnitFileStateValue,
+						Description: unit.Description,
+						Path:        strings.Join(propExecStartValue, ","),
+					})
+				}
+			}
+		}
+	}
+	return returnUnitList, nil
 }
 
 func contains(a string, b string) bool {

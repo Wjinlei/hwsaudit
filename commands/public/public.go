@@ -14,7 +14,11 @@ import (
 
 func WalkDir(save bool, root string, target string, user string, mode string, s bool, t bool, acl string) error {
 	i := 1
-	golib.Delete("result.txt")
+	jsonFile := "home.json"
+	textFile := "/tmp/home.txt"
+
+	golib.Delete(textFile)
+	golib.Delete(jsonFile)
 	filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return nil
@@ -96,7 +100,11 @@ func WalkDir(save bool, root string, target string, user string, mode string, s 
 
 			jsonResult, _ := json.Marshal(result)
 			if save {
-				golib.FileWrite("result.txt", string(jsonResult)+"\n", golib.FileAppend)
+				golib.FileWrite(jsonFile, string(jsonResult)+"\n", golib.FileAppend)
+				golib.FileWrite(textFile, fmt.Sprintf(
+					"<file>%d{*}%s{*}%s{*}%s{*}%s{*}%s</file>\n",
+					result.Id, result.Name, result.Path, result.User, result.Mode, result.Facl),
+					golib.FileAppend)
 			} else {
 				fmt.Println(string(jsonResult))
 			}

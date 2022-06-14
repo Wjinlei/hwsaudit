@@ -9,3 +9,12 @@ type Result struct {
 	Facl  string   `json:"facl,omitempty" form:"facl"`
 	Other []string `json:"other,omitempty" form:"other"`
 }
+
+type Unit struct {
+	Id          int      `json:"id"`
+	Name        string   `json:"name" form:"name"`
+	State       string   `json:"state" form:"state"`
+	Description string   `json:"description" form:"description"`
+	Path        string   `json:"path" form:"path"`
+	FormState   []string `json:"form_state,omitempty" form:"form_state"`
+}

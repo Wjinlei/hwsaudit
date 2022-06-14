@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/Wjinlei/golib v0.0.0-20220512031025-69f9ab3861ab
+	github.com/coreos/go-systemd/v22 v22.3.2
 	github.com/genshen/cmds v0.0.0-20200505065256-d4c52690e15b
 	github.com/gin-gonic/gin v1.7.7
 	github.com/shirou/gopsutil/v3 v3.22.4
@@ -15,6 +16,7 @@ require (
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.11.0 // indirect
+	github.com/godbus/dbus/v5 v5.0.4 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
