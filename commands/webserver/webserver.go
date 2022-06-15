@@ -256,7 +256,7 @@ func (v *version) Run() error {
 		})
 
 		v1.POST("/service", func(ctx *gin.Context) {
-			textFile := "/tmp/service.txt"
+			textFile := "/tmp/service.xml"
 			jsonFile := "service.json"
 			var requestUnit public.Unit
 
@@ -296,11 +296,11 @@ func (v *version) Run() error {
 		})
 
 		v1.POST("/export_xml_home", func(ctx *gin.Context) {
-			ctx.FileAttachment("/tmp/home.txt", "home.txt")
+			ctx.FileAttachment("/tmp/home.xml", "home.xml")
 		})
 
 		v1.POST("/export_xml_service", func(ctx *gin.Context) {
-			ctx.FileAttachment("/tmp/service.txt", "service.txt")
+			ctx.FileAttachment("/tmp/service.xml", "service.xml")
 		})
 
 		v1.POST("/export_json_home", func(ctx *gin.Context) {
