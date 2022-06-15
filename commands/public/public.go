@@ -15,7 +15,7 @@ import (
 func WalkDir(save bool, root string, target string, user string, mode string, s bool, t bool, acl string) error {
 	i := 1
 	jsonFile := "home.json"
-	textFile := "/tmp/home.xml"
+	textFile := "home.xml"
 
 	golib.Delete(textFile)
 	golib.Delete(jsonFile)
