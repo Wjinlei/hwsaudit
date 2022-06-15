@@ -155,6 +155,7 @@ func ListUnits(states []string) ([]Unit, error) {
 					findCase = strings.ReplaceAll(findCase, ",", "")
 					findCase = strings.ReplaceAll(findCase, "]", "")
 					findCase = strings.ReplaceAll(findCase, "[", "")
+					findCase = strings.Split(findCase, " ")[0]
 					propExecStartValue = append(propExecStartValue, findCase)
 				}
 			}
