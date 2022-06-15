@@ -1,4 +1,7 @@
-hwsaudit
 go.sum
-result.txt
+hwsaudit
 html/
+home.json
+home.xml
+service.xml
+service.json
