@@ -145,17 +145,16 @@ func ListUnits(states []string) ([]Unit, error) {
 
 	for _, unit := range unitList {
 		if strings.HasSuffix(unit.Name, ".service") {
-			propUnitFileState, _ := dbusConnect.GetUnitPropertyContext(withTimeoutContext, unit.Name, "UnitFileState")
 			propExecStart, _ := dbusConnect.GetServicePropertyContext(withTimeoutContext, unit.Name, "ExecStart")
+			propUnitFileState, _ := dbusConnect.GetUnitPropertyContext(withTimeoutContext, unit.Name, "UnitFileState")
 
 			var propExecStartValue []string
 			if propExecStart != nil {
 				for _, findCase := range regularizer.FindAllString(propExecStart.Value.String(), -1) {
-					findCase = strings.ReplaceAll(findCase, "\"", "")
-					findCase = strings.ReplaceAll(findCase, ",", "")
-					findCase = strings.ReplaceAll(findCase, "]", "")
-					findCase = strings.ReplaceAll(findCase, "[", "")
-					findCase = strings.Split(findCase, " ")[0]
+					findCase = strings.Split(findCase, ",")[0]
+					findCase = strings.TrimLeft(findCase, "[")
+					findCase = strings.TrimRight(findCase, "]")
+					findCase = strings.Trim(findCase, "\"")
 					propExecStartValue = append(propExecStartValue, findCase)
 				}
 			}
