@@ -3,7 +3,7 @@ module github.com/Wjinlei/hwsaudit
 go 1.18
 
 require (
-	github.com/Wjinlei/golib v0.0.0-20220512031025-69f9ab3861ab
+	github.com/Wjinlei/golib v0.0.0-20220615024113-58482aa6ab32
 	github.com/coreos/go-systemd/v22 v22.3.2
 	github.com/genshen/cmds v0.0.0-20200505065256-d4c52690e15b
 	github.com/gin-gonic/gin v1.7.7
