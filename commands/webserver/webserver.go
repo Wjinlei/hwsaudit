@@ -256,7 +256,7 @@ func (v *version) Run() error {
 		})
 
 		v1.POST("/service", func(ctx *gin.Context) {
-			textFile := "/tmp/service.txt" // 产品经理让加的傻逼导出格式
+			textFile := "/tmp/service.txt"
 			jsonFile := "service.json"
 			var requestUnit public.Unit
 
